@@ -27,3 +27,7 @@ class DB(object):
     	if self.col:
     		self.col.insert_one(data)
 
+    def get_all(self):
+        if self.col:
+            return self.col.find()
+

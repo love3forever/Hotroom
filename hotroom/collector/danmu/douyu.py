@@ -22,17 +22,12 @@ session = Session()
 def get_douyu_catalog():
     with session as s:
         origin_content = s.get(DOUYU_CATALOG)
-        start = datetime.now()
     if origin_content:
         origin_content = origin_content.content
         soup = BeautifulSoup(origin_content, 'lxml')
         box = soup.select("#live-list-contentbox > li")
         for item in box:
-            getData = Thread(target=get_catalog_info,args=(item,))
-            getData.start()
-            getData.join()
-        end = datetime.now()
-        print("costs time for {} seconds".format((end - start).seconds))
+            get_catalog_info(item)
 
 
 def get_catalog_info(catalog):
@@ -41,7 +36,6 @@ def get_catalog_info(catalog):
         p = catalog.select("a > p")
         info = dict()
         info["href"] = DOUYU_HOST + a[0]["href"]
-        get_room_info(info["href"])
         info["catalog"] = p[0].string
         info["date"] = datetime.now()
         db = get_catalog_db()
@@ -60,7 +54,18 @@ def get_room_db():
     db.switch_col("Roominfo")
     return db
 
-def get_room_info(catalog_url):
+
+def get_room_info():
+    db = get_catalog_db()
+    catalog = db.get_all()
+    if catalog:
+        for item in catalog:
+            save_data = Thread(target=save_room_info,args=(item["href"],))
+            save_data.start()
+            save_data.join()
+
+
+def save_room_info(catalog_url):
     if catalog_url:
         flag = []
         is_exits = False
