@@ -9,7 +9,6 @@
 
 from requests import Session
 from bs4 import BeautifulSoup
-from threading import Thread
 from datetime import datetime
 
 from collector.db.db import DB
@@ -51,3 +50,17 @@ def get_catalog_db():
     db.switch_db("Douyu")
     db.switch_col("Catalog")
     return db
+
+
+def get_room_info(catalog_url):
+    if catalog_url:
+        pass
+        flag = []
+        for x in xrange(50):
+            room_url = catalogURL + "?page={}&isAjax=1".format(x)
+            with session as s:
+                room_page = s.get(roomURL)
+            room_content = room_page.content
+            room_soup = BeautifulSoup(room_content)
+            rooms = room_soup.select("li")
+            
