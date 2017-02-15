@@ -18,10 +18,22 @@ DOUYU_CATALOG = 'https://www.douyu.com/directory'
 
 session = Session()
 
+AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.86 Safari/537.36'
+ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+HOST = 'www.douyu.com'
+CONNECTION = "keep-alive"
+
+headers = {
+    'User-Agent': AGENT,
+    'Host': HOST,
+    'Accept': ACCEPT,
+    'Connection': CONNECTION,
+}
+
 
 def get_douyu_catalog():
     with session as s:
-        origin_content = s.get(DOUYU_CATALOG)
+        origin_content = s.get(DOUYU_CATALOG, headers=headers)
     if origin_content:
         origin_content = origin_content.content
         soup = BeautifulSoup(origin_content, 'lxml')
@@ -48,6 +60,7 @@ def get_catalog_db():
     db.switch_col("Catalog")
     return db
 
+
 def get_room_db():
     db = DB()
     db.switch_db("Douyudata")
@@ -60,24 +73,28 @@ def get_room_info():
     catalog = db.get_all()
     if catalog:
         for item in catalog:
-            save_data = Thread(target=save_room_info,args=(item["href"],))
-            save_data.start()
-            save_data.join()
+            # save_data = Thread(target=save_room_info,args=(item["href"],))
+            # save_data.start()
+            # save_data.join()
+            save_room_info(item["href"])
 
 
 def save_room_info(catalog_url):
     if catalog_url:
         flag = []
         is_exits = False
-        for x in xrange(1,50):
+        for x in xrange(1, 50):
             if is_exits:
                 break
             room_url = catalog_url + "?page={}&isAjax=1".format(x)
+            print("current page:{}".format(room_url))
             with session as s:
-                room_page = s.get(room_url)
+                room_page = s.get(room_url, headers=headers)
             room_content = room_page.content
-            room_soup = BeautifulSoup(room_content)
+            room_soup = BeautifulSoup(room_content, 'lxml')
             rooms = room_soup.select("li")
+            if not rooms:
+                break
             for item in rooms:
                 # 获取每个房间的信息
                 room_data = dict()
@@ -111,9 +128,9 @@ def convert_audience(audience):
             number = list(audience)
             number.pop()
             if "." in number:
-                value = int(float(''.join(number))*10000)
+                value = int(float(''.join(number)) * 10000)
             else:
-                value = int(''.join(number))*10000
+                value = int(''.join(number)) * 10000
         else:
             value = int(audience)
         return value
