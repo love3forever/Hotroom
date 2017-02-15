@@ -73,10 +73,12 @@ def get_room_info():
     catalog = db.get_all()
     if catalog:
         for item in catalog:
-            # save_data = Thread(target=save_room_info,args=(item["href"],))
-            # save_data.start()
-            # save_data.join()
             save_room_info(item["href"])
+
+def all_rooms():
+    db = get_catalog_db()
+    catalog = db.get_all()
+    return [item["href"] for item in catalog]
 
 
 def save_room_info(catalog_url):
@@ -104,6 +106,8 @@ def save_room_info(catalog_url):
                     is_exits = True
                     break
                 a = item.select("a")[0]
+                img = item.select("img")[0]
+                room_data["img"] = img["data-original"]
                 room_data["title"] = a["title"]
                 catalog = item.find_all(attrs={"class": "tag ellipsis"})[0]
                 host = item.find_all(attrs={"class": "dy-name ellipsis fl"})[0]

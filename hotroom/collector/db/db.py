@@ -22,12 +22,14 @@ class DB(object):
         if col and isinstance(col, str):
             self.col = self.db[col]
 
+    def save(self, data):
+        if self.col:
+            self.col.insert_one(data)
 
-    def save(self,data):
-    	if self.col:
-    		self.col.insert_one(data)
+    def save_many(self,data):
+        if self.col:
+            self.col.insert_many(data)
 
     def get_all(self):
         if self.col:
             return self.col.find()
-
