@@ -8,7 +8,7 @@ from datetime import datetime
 from celery import group
 from celeryTask import getCatalogInfo, saveRoomInfo
 from collector.danmu.douyu import all_rooms
+from collector.danmu.panda import save_catalog_info
 
 if __name__ == "__main__":
-    allroom = all_rooms()
-    map(saveRoomInfo.delay, allroom)
+    save_catalog_info()

@@ -10,25 +10,13 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
-from threading import Thread
 from collector.db.db import DB
+from collector.danmu.danmuConfig import headers, convert_audience
 
 DOUYU_HOST = 'http://www.douyu.com'
 DOUYU_CATALOG = 'https://www.douyu.com/directory'
 
 session = Session()
-
-AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.86 Safari/537.36'
-ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-HOST = 'www.douyu.com'
-CONNECTION = "keep-alive"
-
-headers = {
-    'User-Agent': AGENT,
-    'Host': HOST,
-    'Accept': ACCEPT,
-    'Connection': CONNECTION,
-}
 
 
 def get_douyu_catalog():
@@ -74,6 +62,7 @@ def get_room_info():
     if catalog:
         for item in catalog:
             save_room_info(item["href"])
+
 
 def all_rooms():
     db = get_catalog_db()
@@ -123,18 +112,3 @@ def save_room_info(catalog_url):
                 db.save(room_data)
 
                 flag.append(item["data-rid"])
-
-
-def convert_audience(audience):
-    if audience:
-        value = 0
-        if u"万" in audience:
-            number = list(audience)
-            number.pop()
-            if "." in number:
-                value = int(float(''.join(number)) * 10000)
-            else:
-                value = int(''.join(number)) * 10000
-        else:
-            value = int(audience)
-        return value
