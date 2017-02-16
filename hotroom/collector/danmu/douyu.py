@@ -13,7 +13,7 @@ from datetime import datetime
 from collector.db.db import DB
 from collector.danmu.danmuConfig import headers, convert_audience
 
-DOUYU_HOST = 'http://www.douyu.com'
+DOUYU_HOST = 'https://www.douyu.com'
 DOUYU_CATALOG = 'https://www.douyu.com/directory'
 
 session = Session()
@@ -26,8 +26,7 @@ def get_douyu_catalog():
         origin_content = origin_content.content
         soup = BeautifulSoup(origin_content, 'lxml')
         box = soup.select("#live-list-contentbox > li")
-        for item in box:
-            get_catalog_info(item)
+        map(get_catalog_info, box)
 
 
 def get_catalog_info(catalog):
@@ -67,12 +66,25 @@ def get_room_info():
 def all_rooms():
     db = get_catalog_db()
     catalog = db.get_all()
+    if not catalog:
+        get_douyu_catalog()
+        catalog = db.get_all()
     return [item["href"] for item in catalog]
 
 
-def save_room_info(catalog_url):
+def save_room_info():
+    '''
+    # main()
+    '''
+    catalog_urls = all_rooms()
+    if catalog_urls:
+        map(parase_room_info, catalog_urls)
+
+
+def parase_room_info(catalog_url):
     if catalog_url:
-        flag = []
+        flag = list()
+        result = list()
         is_exits = False
         for x in xrange(1, 50):
             if is_exits:
@@ -106,9 +118,9 @@ def save_room_info(catalog_url):
                 room_data["audience"] = convert_audience(audience.string)
                 room_data["url"] = item["data-rid"]
                 room_data["date"] = datetime.now()
-
-                # 将获取到的room信息存入数据库
-                db = get_room_db()
-                db.save(room_data)
-
+                result.append(room_data)
                 flag.append(item["data-rid"])
+
+        # 将获取到的room信息存入数据库
+        db = get_room_db()
+        db.save_many(result)
