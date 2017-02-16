@@ -6,7 +6,7 @@
 # @Version : $Id$
 
 # build communication with douyu danmu server
-
+import time
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -66,7 +66,7 @@ def get_room_info():
 def all_rooms():
     db = get_catalog_db()
     catalog = db.get_all()
-    if not catalog:
+    if catalog.count() == 0:
         get_douyu_catalog()
         catalog = db.get_all()
     return [item["href"] for item in catalog]
@@ -93,6 +93,7 @@ def parase_room_info(catalog_url):
             print("current page:{}".format(room_url))
             with session as s:
                 room_page = s.get(room_url, headers=headers)
+                time.sleep(0.02)
             room_content = room_page.content
             room_soup = BeautifulSoup(room_content, 'lxml')
             rooms = room_soup.select("li")

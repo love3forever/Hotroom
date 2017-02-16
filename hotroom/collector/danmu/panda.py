@@ -4,7 +4,7 @@
 # @Author  : eclipse_sv (eclipse_sv@163.com)
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
-
+import time
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -96,6 +96,7 @@ def save_room_info(url):
         print('searching data for {}'.format(url))
         room_info = session.get(url, headers=headers)
         room_info = room_info.json()
+        time.sleep(0.01)
         if room_info["data"] is not None:
             result = list()
             items = room_info['data'].get('items')

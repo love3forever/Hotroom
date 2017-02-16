@@ -9,14 +9,14 @@ from collector.danmu.douyu import parase_room_info, all_rooms
 from collector.danmu.panda import get_room_urls, save_room_info
 
 
-@app.task
-def SAVE_DOUYU_ROOM_DELAY(url):
-    parase_room_info(url)
-
-
-@app.task
+@app.task(max_retries=3, default_retry_delay=1 * 6)
 def SAVE_PANDA_ROOM_DELAY(url):
     save_room_info(url)
+
+
+@app.task(max_retries=3, default_retry_delay=1 * 6)
+def SAVE_DOUYU_ROOM_DELAY(url):
+    parase_room_info(url)
 
 
 @app.task
