@@ -6,29 +6,17 @@
 # @Version : $Id$
 
 # build communication with douyu danmu server
-
+import time
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
-from threading import Thread
 from collector.db.db import DB
+from collector.danmu.danmuConfig import headers, convert_audience
 
-DOUYU_HOST = 'http://www.douyu.com'
+DOUYU_HOST = 'https://www.douyu.com'
 DOUYU_CATALOG = 'https://www.douyu.com/directory'
 
 session = Session()
-
-AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.86 Safari/537.36'
-ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-HOST = 'www.douyu.com'
-CONNECTION = "keep-alive"
-
-headers = {
-    'User-Agent': AGENT,
-    'Host': HOST,
-    'Accept': ACCEPT,
-    'Connection': CONNECTION,
-}
 
 
 def get_douyu_catalog():
@@ -38,8 +26,7 @@ def get_douyu_catalog():
         origin_content = origin_content.content
         soup = BeautifulSoup(origin_content, 'lxml')
         box = soup.select("#live-list-contentbox > li")
-        for item in box:
-            get_catalog_info(item)
+        map(get_catalog_info, box)
 
 
 def get_catalog_info(catalog):
@@ -75,15 +62,29 @@ def get_room_info():
         for item in catalog:
             save_room_info(item["href"])
 
+
 def all_rooms():
     db = get_catalog_db()
     catalog = db.get_all()
+    if catalog.count() == 0:
+        get_douyu_catalog()
+        catalog = db.get_all()
     return [item["href"] for item in catalog]
 
 
-def save_room_info(catalog_url):
+def save_room_info():
+    '''
+    # main()
+    '''
+    catalog_urls = all_rooms()
+    if catalog_urls:
+        map(parase_room_info, catalog_urls)
+
+
+def parase_room_info(catalog_url):
     if catalog_url:
-        flag = []
+        flag = list()
+        result = list()
         is_exits = False
         for x in xrange(1, 50):
             if is_exits:
@@ -92,6 +93,7 @@ def save_room_info(catalog_url):
             print("current page:{}".format(room_url))
             with session as s:
                 room_page = s.get(room_url, headers=headers)
+                time.sleep(0.02)
             room_content = room_page.content
             room_soup = BeautifulSoup(room_content, 'lxml')
             rooms = room_soup.select("li")
@@ -117,24 +119,9 @@ def save_room_info(catalog_url):
                 room_data["audience"] = convert_audience(audience.string)
                 room_data["url"] = item["data-rid"]
                 room_data["date"] = datetime.now()
-
-                # 将获取到的room信息存入数据库
-                db = get_room_db()
-                db.save(room_data)
-
+                result.append(room_data)
                 flag.append(item["data-rid"])
 
-
-def convert_audience(audience):
-    if audience:
-        value = 0
-        if u"万" in audience:
-            number = list(audience)
-            number.pop()
-            if "." in number:
-                value = int(float(''.join(number)) * 10000)
-            else:
-                value = int(''.join(number)) * 10000
-        else:
-            value = int(audience)
-        return value
+        # 将获取到的room信息存入数据库
+        db = get_room_db()
+        db.save_many(result)
