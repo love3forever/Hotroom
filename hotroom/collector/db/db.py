@@ -4,7 +4,7 @@
 # @Author  : eclipse_sv (eclipse_sv@163.com)
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
-
+import os
 from pymongo import MongoClient
 
 
@@ -15,7 +15,17 @@ class DB(object):
         self.cli = MongoClient(host=host, port=port)
 
     def switch_db(self, database):
+        '''
+        切换到目标数据库，并进行权限验证
+        '''
         if database and isinstance(database, str):
+            name = os.getenv('mongo_name')
+            pasw = os.getenv('mongo_pswd')
+            authdb = self.cli['admin']
+            try:
+                authdb.authenticate(name=name, password=pasw)
+            except Exception as e:
+                print("Erro accured during db authenticate:{}".format(str(e)))
             self.db = self.cli[database]
 
     def switch_col(self, col):
