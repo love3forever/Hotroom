@@ -13,11 +13,13 @@ from collector.danmu.quanmin import generate_qm_room_urls, save_qm_roominfo
 @app.task(max_retries=3, default_retry_delay=1 * 6)
 def SAVE_PANDA_ROOM_DELAY(url):
     save_panda_room_info(url)
+    return 'page :{} info has been saved!'.format(url)
 
 
 @app.task(max_retries=3, default_retry_delay=1 * 6)
 def SAVE_DOUYU_ROOM_DELAY(url):
     parase_douyu_room_info(url)
+    return 'page :{} info has been saved!'.format(url)
 
 
 @app.task
@@ -41,3 +43,4 @@ def SAVE_QUANMIN_INFO():
 @app.task(max_retries=3, default_retry_delay=1 * 6)
 def SAVE_QUANMIN_ROOM_DELAY(url):
     save_qm_roominfo(url)
+    return 'page :{} info has been saved!'.format(url)
