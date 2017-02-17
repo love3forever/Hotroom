@@ -26,8 +26,8 @@ class DB(object):
         if self.col:
             self.col.insert_one(data)
 
-    def save_many(self,data):
-        if self.col:
+    def save_many(self, data):
+        if self.col and len(data) != 0:
             self.col.insert_many(data)
 
     def get_all(self):
