@@ -74,7 +74,7 @@ def get_catalogs():
     return None
 
 
-def get_room_urls():
+def get_panda_room_urls():
     catalogs = get_catalogs()
     if not catalogs:
         save_catalog_info()
@@ -91,7 +91,7 @@ def get_room_urls():
     return result
 
 
-def save_room_info(url):
+def save_panda_room_info(url):
     if url:
         print('searching data for {}'.format(url))
         room_info = session.get(url, headers=headers)

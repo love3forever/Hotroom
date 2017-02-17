@@ -20,5 +20,9 @@ CELERYBEAT_SCHEDULE = {
     'SAVE_PANDA_ROOMINFO': {
         'task': 'tasks.SAVE_PANDA_INFO',
         'schedule': crontab(minute=[20, 40, 0]),
+    },
+    'SAVE_QUANMIN_ROOMINFO': {
+        'task': 'tasks.SAVE_QUANMIN_INFO',
+        'schedule': crontab(minute=[25, 45, 5]),
     }
 }

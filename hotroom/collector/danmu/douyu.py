@@ -63,7 +63,7 @@ def get_room_info():
             save_room_info(item["href"])
 
 
-def all_rooms():
+def douyu_all_rooms():
     db = get_catalog_db()
     catalog = db.get_all()
     if catalog.count() == 0:
@@ -76,12 +76,12 @@ def save_room_info():
     '''
     # main()
     '''
-    catalog_urls = all_rooms()
+    catalog_urls = douyu_all_rooms()
     if catalog_urls:
-        map(parase_room_info, catalog_urls)
+        map(parase_douyu_room_info, catalog_urls)
 
 
-def parase_room_info(catalog_url):
+def parase_douyu_room_info(catalog_url):
     if catalog_url:
         flag = list()
         result = list()
