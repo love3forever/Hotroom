@@ -35,6 +35,7 @@ def get_qm_catalogs():
     db = DB()
     db.switch_db('Quanmin')
     db.switch_col('Catalog')
+    db.drop_col()
     db.save_many(result)
 
 

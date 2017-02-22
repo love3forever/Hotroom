@@ -5,7 +5,7 @@
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
 
-# celery -A celeryTask worker  --loglevel=info
+# celery -A celeryApp worker -B --loglevel=info
 
 from celery import Celery
 import celeryConfig

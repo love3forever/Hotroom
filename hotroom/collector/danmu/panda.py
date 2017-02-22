@@ -61,6 +61,7 @@ def save_catalog_info():
                 }
                 data.append(liinfo)
             if data:
+                get_catalog_db().drop_col()
                 get_catalog_db().save_many(data)
         else:
             print("no data received")
@@ -102,16 +103,19 @@ def save_panda_room_info(url):
             items = room_info['data'].get('items')
             if items:
                 for item in items:
-                    value = {
-                        'roomid': item['id'],
-                        'title': item['name'],
-                        'audience': int(item['person_num']),
-                        'url': PAND_HOST + item['id'],
-                        'img': item['pictures']['img'],
-                        "date": datetime.now(),
-                        "catalog": item['classification']['cname'],
-                        "host": item['userinfo']['nickName']
-                    }
-                    result.append(value)
+                    try:
+                        value = {
+                            'roomid': item['id'],
+                            'title': item['name'],
+                            'audience': int(item['person_num']),
+                            'url': PAND_HOST + item['id'],
+                            'img': item['pictures']['img'],
+                            "date": datetime.now(),
+                            "catalog": item['classification']['cname'],
+                            "host": item['userinfo']['nickName']
+                        }
+                        result.append(value)
+                    except Exception as e:
+                        print('Erro accure :{}'.format(str(e)))
                 get_room_db().save_many(result)
                 print('{} room data saved'.format(url))

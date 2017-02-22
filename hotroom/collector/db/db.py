@@ -43,3 +43,7 @@ class DB(object):
     def get_all(self):
         if self.col:
             return self.col.find()
+
+    def drop_col(self):
+        if self.col:
+            self.col.drop()

@@ -26,6 +26,8 @@ def get_douyu_catalog():
         origin_content = origin_content.content
         soup = BeautifulSoup(origin_content, 'lxml')
         box = soup.select("#live-list-contentbox > li")
+        db = get_catalog_db()
+        db.drop_col()
         map(get_catalog_info, box)
 
 
