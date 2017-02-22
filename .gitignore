@@ -87,3 +87,11 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+# idea
+.idea/
+
+
+# celery db
+hotroom/celerybeat-schedule.db

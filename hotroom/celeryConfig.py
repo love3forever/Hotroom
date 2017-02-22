@@ -15,27 +15,15 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 
 CELERYBEAT_SCHEDULE = {
     'SAVE_DOUYU_ROOMINFO': {
-        'task': 'tasks.SAVE_DOUYU_INFO',
+        'task': 'tasks.SAVE_DOUYU_DATA',
         'schedule': crontab(minute=[10, 30, 50]),
     },
     'SAVE_PANDA_ROOMINFO': {
-        'task': 'tasks.SAVE_PANDA_INFO',
+        'task': 'tasks.SAVE_PANDA_DATA',
         'schedule': crontab(minute=[20, 40, 0]),
     },
     'SAVE_QUANMIN_ROOMINFO': {
-        'task': 'tasks.SAVE_QUANMIN_INFO',
+        'task': 'tasks.SAVE_QUANMIN_DATA',
         'schedule': crontab(minute=[25, 45, 5]),
-    },
-    'REFRESH_DOUYU_CATALOG': {
-        'task': 'tasks.REFRESH_DOUYU',
-        'schedule': crontab(minute=[3], hour=[0]),
-    },
-    'REFRESH_PANDA_CATALOG': {
-        'task': 'tasks.REFRESH_PANDA',
-        'schedule': crontab(minute=[3], hour=[0]),
-    },
-    'REFRESH_QUANMIN_CATALOG': {
-        'task': 'tasks.REFRESH_QUANMIN',
-        'schedule': crontab(minute=[3], hour=[0]),
     },
 }
