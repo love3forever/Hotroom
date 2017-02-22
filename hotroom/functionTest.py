@@ -4,4 +4,7 @@
 # @Author  : eclipse_sv (eclipse_sv@163.com)
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
+from collector.danmu.CDouyu import Douyu
 
+
+douyu = Douyu()

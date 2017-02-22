@@ -16,8 +16,6 @@ headers = {
 }
 
 
-
-
 def convert_audience(audience):
     if audience:
         value = 0
