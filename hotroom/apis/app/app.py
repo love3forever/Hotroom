@@ -5,4 +5,3 @@
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
 
-from flask.ext import restful
