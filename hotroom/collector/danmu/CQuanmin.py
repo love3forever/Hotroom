@@ -34,8 +34,9 @@ class Quanmin(BaseDanmu):
                 data['catalog'] = item['name']
                 data['href'] = item['slug']
                 result.append(data)
-        self._cataCol.drop()
-        self._cataCol.insert_many(result)
+            if result:
+                self._cataCol.drop()
+                self._cataCol.insert_many(result)
 
     def getRoomInfos(self):
         catalogURLs = self.getCatalogURLs()

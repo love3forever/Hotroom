@@ -58,7 +58,6 @@ class Panda(BaseDanmu):
         if self._cataCol:
             allCatalogs = self._cataCol.find()
             catalogs = [item['catelog'] for item in allCatalogs]
-            result = list()
             for href in catalogs:
                 catalog = href
                 with self.session as s:
@@ -67,12 +66,12 @@ class Panda(BaseDanmu):
                 count = int(spider['data']['total'])
                 pagenum = count / 120 + 2
                 for num in xrange(1, pagenum):
-                    result.append(Panda.PANDA_ROOM.format(num, catalog))
-            return result
+                    yield Panda.PANDA_ROOM.format(num, catalog)
 
     def getRoomInfos(self):
         self.getCatalogs()
         catalogURLs = self.getCatalogURLs()
+        catalogURLs = filter(lambda x: '?' not in x, catalogURLs)
         map(self.savePandaRooms, catalogURLs)
 
     def savePandaRooms(self, url):
@@ -80,8 +79,8 @@ class Panda(BaseDanmu):
             print('searching data for {}'.format(url))
             with self.session as s:
                 room_info = s.get(url, headers=self.headers)
+                time.sleep(0.01)
             room_info = room_info.json()
-            time.sleep(0.01)
             if room_info["data"] is not None:
                 result = list()
                 items = room_info['data'].get('items')
@@ -102,4 +101,6 @@ class Panda(BaseDanmu):
                         except Exception as e:
                             print(item['person_num'])
                             print('Erro accure :{}'.format(str(e)))
-                    self._roomCol.insert_many(result)
+                print('{} records inserting into pandata with url:{}'.format(
+                    len(result), url))
+                self._roomCol.insert_many(result)

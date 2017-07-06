@@ -10,19 +10,21 @@ from collector.danmu.CPanda import Panda
 from collector.danmu.CQuanmin import Quanmin
 
 
+douyu = Douyu()
+panda = Panda()
+quanmin = Quanmin()
+
+
 @app.task
 def SAVE_DOUYU_DATA():
-    douyu = Douyu()
     douyu.getRoomInfos()
 
 
 @app.task
 def SAVE_PANDA_DATA():
-    panda = Panda()
     panda.getRoomInfos()
 
 
 @app.task
 def SAVE_QUANMIN_DATA():
-    quanmin = Quanmin()
     quanmin.getRoomInfos()

@@ -20,13 +20,14 @@ class BaseDanmu():
 
     def __init__(self, mhost='localhost', mport=27017):
         self._mongocli = MongoClient(host=mhost, port=mport)
-        try:
-            name = os.getenv('mongo_name')
-            pasw = os.getenv('mongo_pswd')
-            authdb = self._mongocli['admin']
-            authdb.authenticate(name=name, password=pasw)
-        except PyMongoError as e:
-            print("Erro accured during db authenticate:{}".format(str(e)))
+        # 如果数据库启用了密码验证，将此段代码放开进行验证
+        # try:
+        #     name = os.getenv('mongo_name')
+        #     pasw = os.getenv('mongo_pswd')
+        #     authdb = self._mongocli['admin']
+        #     authdb.authenticate(name=name, password=pasw)
+        # except PyMongoError as e:
+        #     print("Erro accured during db authenticate:{}".format(str(e)))
         self.session = Session()
         self.soup = BeautifulSoup
         self.headers = headers

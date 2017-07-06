@@ -36,7 +36,9 @@ class Douyu(BaseDanmu):
 
     @staticmethod
     def parseCatalogContent(box):
-        catalogs = list()
+        '''
+        将parseCatalogContent的返回值从list改为生成器，减少内存开销
+        '''
         for catalog in box:
             try:
                 a = catalog.select("a")
@@ -45,11 +47,11 @@ class Douyu(BaseDanmu):
                 info["href"] = 'https://www.douyu.com{}'.format(a[0]["href"])
                 info["catalog"] = p[0].string
                 info["date"] = datetime.now()
-                catalogs.append(info)
+                yield info
             except Exception as e:
-                print("Error accurs when parsing html for catalogs: {}".format(e))
-                return None
-        return catalogs
+                print("Error accurs when parsing html for\
+                 catalogs: {}".format(e))
+                yield None
 
     @staticmethod
     def convertAudience(audience):
