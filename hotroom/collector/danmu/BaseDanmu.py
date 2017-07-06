@@ -5,7 +5,7 @@
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
 
-import os
+import logging
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from danmuConfig import headers
@@ -31,6 +31,25 @@ class BaseDanmu():
         self.session = Session()
         self.soup = BeautifulSoup
         self.headers = headers
+        # 配置logging
+        logger_name = __name__
+        self.logger = logging.getLogger(logger_name)
+        self.logger.setLevel(logging.DEBUG)
+
+        # create file handler
+        log_path = "./Data_collector_log.log"
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(logging.DEBUG)
+
+        # create formatter
+        fmt = "%(asctime)-15s %(levelname)s %(filename)s\
+         %(lineno)d %(process)d %(message)s"
+        datefmt = "%a %d %b %Y %H:%M:%S"
+        formatter = logging.Formatter(fmt, datefmt)
+
+        # add handler and formatter to logger
+        fh.setFormatter(formatter)
+        self.logger.addHandler(fh)
 
     @abstractmethod
     def getCatalogs(self):

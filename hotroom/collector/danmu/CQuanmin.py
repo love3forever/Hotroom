@@ -45,11 +45,15 @@ class Quanmin(BaseDanmu):
             return 0
 
     def saveRoomInfo(self, url):
-        print('saving data of page:{}'.format(url))
+        self.logger.info('saving data of page:{}'.format(url))
         with self.session as s:
-            room_data = s.get(url, headers=self.headers,
-                              stream=True, timeout=5)
-            time.sleep(0.01)
+            try:
+                room_data = s.get(url, headers=self.headers,
+                                  stream=True, timeout=5)
+                time.sleep(0.01)
+            except Exception as e:
+                self.logger.error(str(e))
+
         if room_data:
             room_info = room_data.json()
             result = list()
@@ -66,6 +70,8 @@ class Quanmin(BaseDanmu):
                 data['roomid'] = item['no']
                 result.append(data)
             if result:
+                self.logger.info(
+                    'Inserting {} quanmin data'.format(len(result)))
                 self._roomCol.insert_many(result)
 
     def getCatalogURLs(self):
@@ -77,7 +83,7 @@ class Quanmin(BaseDanmu):
                 test_data = s.get(url, headers=self.headers).json()
             if len(test_data) != 0:
                 if test_data['pageCount'] != 1:
-                    for x in xrange(1, test_data['pageCount']):
+                    for x in xrange(2, test_data['pageCount'] + 1):
                         room_urls.append(
                             Quanmin.QUANMIN_ROOM.format(catalog['href'], x))
                 room_urls.append(url)

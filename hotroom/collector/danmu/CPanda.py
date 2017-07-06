@@ -77,11 +77,15 @@ class Panda(BaseDanmu):
 
     def savePandaRooms(self, url):
         if url:
-            print('searching data for {}'.format(url))
+            self.logger.info('searching data for {}'.format(url))
             with self.session as s:
-                room_info = s.get(url, headers=self.headers,
-                                  stream=True, timeout=5)
-                time.sleep(0.01)
+                try:
+                    room_info = s.get(url, headers=self.headers,
+                                      stream=True, timeout=5)
+                    time.sleep(0.01)
+                except Exception as e:
+                    self.logger.error(str(e))
+
             room_info = room_info.json()
             if room_info["data"] is not None:
                 result = list()
@@ -102,8 +106,8 @@ class Panda(BaseDanmu):
                             result.append(value)
                         except Exception as e:
                             print(item['person_num'])
-                            print('Erro accure :{}'.format(str(e)))
-                print('{} records inserting into pandata with url:{}'.format(
+                            self.logger.error('Erro accure :{}'.format(str(e)))
+                self.logger.info('{} records inserting into pandata with url:{}'.format(
                     len(result), url))
                 if result:
                     self._roomCol.insert_many(result)

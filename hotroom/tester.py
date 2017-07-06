@@ -22,13 +22,13 @@ class Test_Collector(TestCase):
         douyu = CDouyu.Douyu(mport=27018)
         assert 0 == douyu.getRoomInfos()
 
-    def test_quanmin(self):
-        quanmin = CQuanmin.Quanmin(mport=27018)
-        assert 0 == quanmin.getRoomInfos()
+    # def test_quanmin(self):
+    #     quanmin = CQuanmin.Quanmin(mport=27018)
+    #     assert 0 == quanmin.getRoomInfos()
 
-    def test_panda(self):
-        panda = CPanda.Panda(mport=27018)
-        assert 0 == panda.getRoomInfos()
+    # def test_panda(self):
+    #     panda = CPanda.Panda(mport=27018)
+    #     assert 0 == panda.getRoomInfos()
 
 
 if __name__ == '__main__':

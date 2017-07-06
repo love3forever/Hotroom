@@ -7,7 +7,6 @@
 import time
 from BaseDanmu import BaseDanmu
 from datetime import datetime
-from multiprocessing.dummy import Pool
 
 
 class Douyu(BaseDanmu):
@@ -21,6 +20,7 @@ class Douyu(BaseDanmu):
         self.DOUYU_HTTPS_HOST = 'https://www.douyu.com'
         self.DOUYU_HTTP_HOST = 'http://www.douyu.com'
         self.DOUYU_CATALOG = 'https://www.douyu.com/directory'
+        self.logger.info('Douyu Collector Created')
 
     def getCatalogs(self):
         with self.session as s:
@@ -34,6 +34,7 @@ class Douyu(BaseDanmu):
         if box:
             catalogs = Douyu.parseCatalogContent(box)
             self._cataCol.insert_many(catalogs)
+            self.logger.info('Douyu Catalog Inserted')
 
     @staticmethod
     def parseCatalogContent(box):
@@ -75,6 +76,7 @@ class Douyu(BaseDanmu):
         if not catalogURLs:
             return
         map(self.saveDouyuRoomInfo, catalogURLs)
+        self.logger.info('Douyu Data Inserted')
         return 0
 
     def saveDouyuRoomInfo(self, catalog_url):
@@ -86,8 +88,14 @@ class Douyu(BaseDanmu):
                 if is_exits:
                     break
                 room_url = catalog_url + "?page={}&isAjax=1".format(x)
-                print("current page:{}".format(room_url))
+                self.logger.info("current page:{}".format(room_url))
                 with self.session as s:
+                    try:
+                        room_page = s.get(
+                            room_url, headers=self.headers, timeout=5, stream=True)
+                        time.sleep(0.02)
+                    except Exception as e:
+                        self.logger.error(str(e))
                     room_page = s.get(
                         room_url, headers=self.headers, timeout=5, stream=True)
                     time.sleep(0.02)
@@ -123,6 +131,7 @@ class Douyu(BaseDanmu):
 
             # 以list的形式返回roominfo
             if result:
+                self.logger.info('Inserting {} douyu data'.format(len(result)))
                 self._roomCol.insert_many(result)
 
     def getCatalogURLs(self):
