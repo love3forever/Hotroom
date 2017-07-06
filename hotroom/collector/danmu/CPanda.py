@@ -33,7 +33,7 @@ class Panda(BaseDanmu):
                 for li in cate_lis:
                     a = li.select('a')[0]
                     href = a["href"]
-                    if "http://" in href:
+                    if "http://" in href or '?' in href:
                         continue
                     catelog = href.split('/')[-1]
                     href = Panda.PAND_HOST + href
@@ -55,30 +55,32 @@ class Panda(BaseDanmu):
                 print("no data received")
 
     def getCatalogURLs(self):
-        if self._cataCol:
-            allCatalogs = self._cataCol.find()
-            catalogs = [item['catelog'] for item in allCatalogs]
-            for href in catalogs:
-                catalog = href
-                with self.session as s:
-                    spider = s.get(Panda.PANDA_SPIDER.format(
-                        catalog), headers=self.headers).json()
-                count = int(spider['data']['total'])
-                pagenum = count / 120 + 2
-                for num in xrange(1, pagenum):
-                    yield Panda.PANDA_ROOM.format(num, catalog)
+        allCatalogs = self._cataCol.find()
+        catalogs = [item['catelog'] for item in allCatalogs]
+        urls = list()
+        for href in catalogs:
+            catalog = href
+            with self.session as s:
+                spider = s.get(Panda.PANDA_SPIDER.format(
+                    catalog), headers=self.headers).json()
+            count = int(spider['data']['total'])
+            pagenum = count / 120 + 2
+            for num in xrange(1, pagenum):
+                urls.append(Panda.PANDA_ROOM.format(num, catalog))
+        return urls
 
     def getRoomInfos(self):
         self.getCatalogs()
         catalogURLs = self.getCatalogURLs()
-        catalogURLs = filter(lambda x: '?' not in x, catalogURLs)
         map(self.savePandaRooms, catalogURLs)
+        return 0
 
     def savePandaRooms(self, url):
         if url:
             print('searching data for {}'.format(url))
             with self.session as s:
-                room_info = s.get(url, headers=self.headers)
+                room_info = s.get(url, headers=self.headers,
+                                  stream=True, timeout=5)
                 time.sleep(0.01)
             room_info = room_info.json()
             if room_info["data"] is not None:
@@ -103,4 +105,5 @@ class Panda(BaseDanmu):
                             print('Erro accure :{}'.format(str(e)))
                 print('{} records inserting into pandata with url:{}'.format(
                     len(result), url))
-                self._roomCol.insert_many(result)
+                if result:
+                    self._roomCol.insert_many(result)

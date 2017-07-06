@@ -4,7 +4,7 @@
 # @Author  : Wangmengcn (eclipse_sv@163.com)
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
-
+import time
 from BaseDanmu import BaseDanmu
 from datetime import datetime
 
@@ -34,21 +34,24 @@ class Quanmin(BaseDanmu):
                 data['catalog'] = item['name']
                 data['href'] = item['slug']
                 result.append(data)
-            if result:
-                self._cataCol.drop()
-                self._cataCol.insert_many(result)
+            self._cataCol.drop()
+            self._cataCol.insert_many(result)
 
     def getRoomInfos(self):
+        self.getCatalogs()
         catalogURLs = self.getCatalogURLs()
         if catalogURLs:
             map(self.saveRoomInfo, catalogURLs)
+            return 0
 
     def saveRoomInfo(self, url):
-        self.getCatalogs()
         print('saving data of page:{}'.format(url))
         with self.session as s:
-            room_info = s.get(url, headers=self.headers).json()
-        if len(room_info):
+            room_data = s.get(url, headers=self.headers,
+                              stream=True, timeout=5)
+            time.sleep(0.01)
+        if room_data:
+            room_info = room_data.json()
             result = list()
             datas = room_info['data']
             for item in datas:

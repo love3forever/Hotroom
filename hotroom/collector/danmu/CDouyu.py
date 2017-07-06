@@ -24,7 +24,8 @@ class Douyu(BaseDanmu):
 
     def getCatalogs(self):
         with self.session as s:
-            origin_content = s.get(self.DOUYU_CATALOG, headers=self.headers)
+            origin_content = s.get(
+                self.DOUYU_CATALOG, headers=self.headers, stream=True, timeout=5)
         if origin_content:
             origin_content = origin_content.content
         soup = self.soup(origin_content, 'lxml')
@@ -77,6 +78,7 @@ class Douyu(BaseDanmu):
         roomContents = filter(lambda x: len(x) != 0, roomContents)
         pool = Pool()
         pool.map(lambda x: self._roomCol.insert_many(x), roomContents)
+        return 0
 
     def paraseDouyuRoomInfo(self, catalog_url):
         if catalog_url:
@@ -89,7 +91,8 @@ class Douyu(BaseDanmu):
                 room_url = catalog_url + "?page={}&isAjax=1".format(x)
                 print("current page:{}".format(room_url))
                 with self.session as s:
-                    room_page = s.get(room_url, headers=self.headers)
+                    room_page = s.get(
+                        room_url, headers=self.headers, timeout=5, stream=True)
                     time.sleep(0.02)
                 room_content = room_page.content
                 room_soup = self.soup(room_content, 'lxml')
