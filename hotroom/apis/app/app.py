@@ -1,7 +1,13 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# @Date    : 2017-02-19 19:51:01
-# @Author  : Wangmengcn (eclipse_sv@163.com)
-# @Link    : https://eclipsesv.com
-# @Version : $Id$
+from flask import Flask
+from sys import path
+path.append("..")
+from douyu.catalogs import douyuCatalogs
+from douyu.roominfo import roominfo
 
+app = Flask(__name__)
+
+app.register_blueprint(douyuCatalogs)
+app.register_blueprint(roominfo)
+
+if __name__ == '__main__':
+    app.run(debug=True)
