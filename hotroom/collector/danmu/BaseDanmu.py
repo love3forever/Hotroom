@@ -19,7 +19,7 @@ class BaseDanmu():
     __metaclass__ = ABCMeta
 
     def __init__(self, mhost='localhost', mport=27017):
-        self._mongocli = MongoClient(host=mhost, port=mport)
+        self._mongocli = MongoClient(host=mhost, port=mport, connect=False)
         # 如果数据库启用了密码验证，将此段代码放开进行验证
         # try:
         #     name = os.getenv('mongo_name')
