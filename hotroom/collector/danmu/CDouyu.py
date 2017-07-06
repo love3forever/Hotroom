@@ -74,13 +74,10 @@ class Douyu(BaseDanmu):
         catalogURLs = self.getCatalogURLs()
         if not catalogURLs:
             return
-        roomContents = map(self.paraseDouyuRoomInfo, catalogURLs)
-        roomContents = filter(lambda x: len(x) != 0, roomContents)
-        pool = Pool()
-        pool.map(lambda x: self._roomCol.insert_many(x), roomContents)
+        map(self.saveDouyuRoomInfo, catalogURLs)
         return 0
 
-    def paraseDouyuRoomInfo(self, catalog_url):
+    def saveDouyuRoomInfo(self, catalog_url):
         if catalog_url:
             flag = list()
             result = list()
@@ -125,7 +122,8 @@ class Douyu(BaseDanmu):
                     flag.append(item["data-rid"])
 
             # 以list的形式返回roominfo
-            return result
+            if result:
+                self._roomCol.insert_many(result)
 
     def getCatalogURLs(self):
         if self._cataCol:
