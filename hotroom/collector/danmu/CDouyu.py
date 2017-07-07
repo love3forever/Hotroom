@@ -98,9 +98,6 @@ class Douyu(BaseDanmu):
                         time.sleep(0.2)
                     except Exception as e:
                         self.logger.error(str(e))
-                    room_page = s.get(
-                        room_url, headers=self.headers, timeout=5, stream=True)
-                    time.sleep(0.02)
                 room_content = room_page.content
                 room_soup = self.soup(room_content, 'lxml')
                 rooms = room_soup.select("li")
