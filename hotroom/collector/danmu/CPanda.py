@@ -61,8 +61,13 @@ class Panda(BaseDanmu):
         for href in catalogs:
             catalog = href
             with self.session as s:
-                spider = s.get(Panda.PANDA_SPIDER.format(
-                    catalog), headers=self.headers).json()
+                try:
+                    spider = s.get(Panda.PANDA_SPIDER.format(
+                        catalog), headers=self.headers).json()
+                    time.sleep(0.2)
+                except Exception as e:
+                    self.logger.error(str(e))
+
             count = int(spider['data']['total'])
             pagenum = count / 120 + 2
             for num in xrange(1, pagenum):

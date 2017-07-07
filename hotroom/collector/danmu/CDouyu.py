@@ -75,7 +75,9 @@ class Douyu(BaseDanmu):
         catalogURLs = self.getCatalogURLs()
         if not catalogURLs:
             return
-        map(self.saveDouyuRoomInfo, catalogURLs)
+        # map(self.saveDouyuRoomInfo, catalogURLs)
+        for url in catalogURLs:
+            self.saveDouyuRoomInfo(url)
         self.logger.info('Douyu Data Inserted')
         return 0
 
@@ -93,7 +95,7 @@ class Douyu(BaseDanmu):
                     try:
                         room_page = s.get(
                             room_url, headers=self.headers, timeout=5, stream=True)
-                        time.sleep(0.02)
+                        time.sleep(0.2)
                     except Exception as e:
                         self.logger.error(str(e))
                     room_page = s.get(

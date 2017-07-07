@@ -50,7 +50,7 @@ class Quanmin(BaseDanmu):
             try:
                 room_data = s.get(url, headers=self.headers,
                                   stream=True, timeout=5)
-                time.sleep(0.01)
+                time.sleep(0.2)
             except Exception as e:
                 self.logger.error(str(e))
 
