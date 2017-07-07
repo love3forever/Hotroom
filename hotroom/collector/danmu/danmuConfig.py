@@ -7,7 +7,7 @@
 
 AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.86 Safari/537.36'
 ACCEPT = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
-CONNECTION = "close"
+CONNECTION = "keep-alive"
 
 headers = {
     'User-Agent': AGENT,
