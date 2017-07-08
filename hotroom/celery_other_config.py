@@ -15,10 +15,10 @@ CELERY_TIMEZONE = 'Asia/Shanghai'
 CELERYBEAT_SCHEDULE = {
     'SAVE_PANDA_ROOMINFO': {
         'task': 'task_other.SAVE_PANDA_DATA',
-        'schedule': crontab(minute=[40]),
+        'schedule': crontab(minute=[0]),
     },
     'SAVE_QUANMIN_ROOMINFO': {
         'task': 'task_other.SAVE_QUANMIN_DATA',
-        'schedule': crontab(minute=[41]),
+        'schedule': crontab(minute=[10]),
     },
 }
