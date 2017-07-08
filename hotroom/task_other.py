@@ -5,7 +5,7 @@
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
 
-from celeryApp import app
+from other_app import app
 from collector.danmu.CPanda import Panda
 from collector.danmu.CQuanmin import Quanmin
 
