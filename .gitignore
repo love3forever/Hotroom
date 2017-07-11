@@ -237,3 +237,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# static files
+*.png
+*.log
+*.jpg
+*.jpeg

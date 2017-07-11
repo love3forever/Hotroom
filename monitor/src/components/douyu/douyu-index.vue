@@ -1,12 +1,15 @@
 <template>
   <div id="app">
     <router-view></router-view>
+    <p>
+    	Douyu
+    </p>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'app'
+  name: 'DouyuIndex'
 }
 </script>
 
