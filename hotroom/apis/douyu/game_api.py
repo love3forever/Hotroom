@@ -7,6 +7,7 @@
 from douyu_api_abc import Douyu_Api
 from flask import Blueprint
 from flask_restful import Api, abort
+from pymongo import DESCENDING, ASCENDING
 
 bp_douyu_game = Blueprint('douyu_games_api', __name__,
                           url_prefix='/api/v1/douyu')
@@ -22,7 +23,9 @@ class Douyu_games(Douyu_Api):
         self.logger.info('{} inited'.format(__name__))
 
     def get(self):
-        test_data = {
-            'a': 'b'
+        test_data = self._col.find({}, {'_id': 0}).sort(
+            'date', DESCENDING).limit(5)
+        return_data = {
+            'recent_records': list(test_data)
         }
-        return self.wrapper_response(test_data)
+        return self.wrapper_response(return_data)
