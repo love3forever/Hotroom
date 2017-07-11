@@ -23,9 +23,25 @@ class Douyu_games(Douyu_Api):
         self.logger.info('{} inited'.format(__name__))
 
     def get(self):
-        test_data = self._col.find({}, {'_id': 0}).sort(
-            'date', DESCENDING).limit(5)
+        test_data = self._col.aggregate(
+            [{'$group': {'_id': '$catalog', 'heat': {'$sum': 1}}}])
+        self.logger.info('game catalog aggregation completed')
+        sorted_catalog = sorted(test_data, key=lambda x: x[
+                                'heat'], reverse=True)
+        self.logger.info('game catalog data sortting completed')
         return_data = {
-            'recent_records': list(test_data)
+            'douyu_game_catalogs': sorted_catalog
         }
         return self.wrapper_response(return_data)
+
+
+@api_douyu_game.resource('/game/<string:game>')
+class Douyu_game_info(Douyu_Api):
+    """根据游戏名称获取游戏具体信息"""
+
+    def __init__(self, host, port):
+        super(Douyu_game_info, self).__init__()
+        self.logger.info('{} inited'.format(__name__))
+
+    def get(self, game):
+        pass
