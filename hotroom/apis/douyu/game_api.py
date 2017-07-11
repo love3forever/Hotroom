@@ -8,6 +8,7 @@ from douyu_api_abc import Douyu_Api
 from flask import Blueprint
 from flask_restful import Api, abort
 from pymongo import DESCENDING, ASCENDING
+from datetime import datetime, timedelta
 
 bp_douyu_game = Blueprint('douyu_games_api', __name__,
                           url_prefix='/api/v1/douyu')
@@ -39,9 +40,31 @@ class Douyu_games(Douyu_Api):
 class Douyu_game_info(Douyu_Api):
     """根据游戏名称获取游戏具体信息"""
 
-    def __init__(self, host, port):
+    def __init__(self, host='localhost', port=27017):
         super(Douyu_game_info, self).__init__()
         self.logger.info('{} inited'.format(__name__))
 
     def get(self, game):
-        pass
+        '''
+        {$project:{host:'$_id',count:1,earliest:1,latest:1,date:1,audience:1,_id:0}}
+        '''
+        pipeline = []
+        pipeline.append({'$match': {'catalog': game}})
+        pipeline.append({'$sort': {'audience': 1}})
+        pipeline.append({'$group': {'_id': '$host', 'count': {'$sum': 1}, 'earliest': {'$min': '$date'}, 'latest': {
+                        '$max': '$date'}, 'date': {'$push': '$date'}, 'audience': {'$push': '$audience'}}})
+        pipeline.append({'$project': {'host': '$_id', 'count': 1,
+                                      'earliest': 1, 'latest': 1, 'date': 1, 'audience': 1, '_id': 0}})
+        pipeline.append({'$limit': 20})
+        try:
+            game_data = self._col.aggregate(pipeline)
+        except Exception as e:
+            self.logger.error(str(e))
+            abort(404)
+        else:
+            return_data = {
+                'catalog': game,
+                'result': list(game_data)
+            }
+            self.logger.info('get {} detail data'.format(game.encode('utf-8')))
+            return self.wrapper_response(return_data)
