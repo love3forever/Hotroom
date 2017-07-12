@@ -101,3 +101,33 @@ class Douyu_game_timeline(Douyu_Api):
             self.logger.info(
                 'get {} timeline data'.format(game.encode('utf-8')))
             return self.wrapper_response(return_data)
+
+
+@api_douyu_game.resource('/game/<string:game>/streamers')
+class Douyu_game_streamers(Douyu_Api):
+    """根据游戏名称，获取直播过该游戏的主播列表,直播时长前100"""
+
+    def __init__(self, host='localhost', port=27017):
+        super(Douyu_game_streamers, self).__init__()
+        self.logger.info('{} inited'.format(__name__))
+
+    def get(self, game):
+        pipeline = []
+        pipeline.append({'$match': {'catalog': game}})
+        pipeline.append({'$group': {'_id': '$host', 'count': {'$sum': 1}, 'date': {
+                        '$push': '$date'}, 'audience': {'$push': '$audience'}}})
+        pipeline.append(
+            {'$project': {'host': '$_id', 'count': 1, 'date': 1, 'audience': 1, '_id': 0}})
+        pipeline.append({'$sort': {'count': -1}})
+        pipeline.append({'$limit': 100})
+        try:
+            streamers_data = self._col.aggregate(pipeline)
+        except Exception as e:
+            self.logger.error(str(e))
+            abort(503)
+        else:
+            return_data = {
+                'catalog': game,
+                'streamers': list(streamers_data)
+            }
+            return self.wrapper_response(return_data)
