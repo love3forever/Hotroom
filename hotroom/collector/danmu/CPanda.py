@@ -105,6 +105,7 @@ class Panda(BaseDanmu):
                                 'url': Panda.PAND_HOST + item['id'],
                                 'img': item['pictures']['img'],
                                 "date": datetime.now(),
+                                "uid": datetime.now().strftime("%Y-%m-%d %H"),
                                 "catalog": item['classification']['cname'],
                                 "host": item['userinfo']['nickName']
                             }

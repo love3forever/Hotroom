@@ -125,6 +125,8 @@ class Douyu(BaseDanmu):
                         audience.string)
                     room_data["url"] = item["data-rid"]
                     room_data["date"] = datetime.now()
+                    room_data["uid"] = room_data[
+                        "date"].strftime("%Y-%m-%d %H")
                     result.append(room_data)
                     flag.append(item["data-rid"])
 

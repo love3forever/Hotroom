@@ -65,6 +65,7 @@ class Quanmin(BaseDanmu):
                 data['url'] = Quanmin.QUANMIN_HOST.format(item['no'])
                 data['audience'] = int(item['view'])
                 data['date'] = datetime.now()
+                data['uid'] = data['date'].strftime("%Y-%m-%d %H")
                 data['catalog'] = item['category_name']
                 data['host'] = item['nick']
                 data['roomid'] = item['no']

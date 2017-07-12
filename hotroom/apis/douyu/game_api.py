@@ -46,7 +46,7 @@ class Douyu_game_info(Douyu_Api):
 
     def get(self, game):
         '''
-        {$project:{host:'$_id',count:1,earliest:1,latest:1,date:1,audience:1,_id:0}}
+        根据游戏名称获取游戏相关细节数据
         '''
         pipeline = []
         pipeline.append({'$match': {'catalog': game}})
@@ -60,11 +60,44 @@ class Douyu_game_info(Douyu_Api):
             game_data = self._col.aggregate(pipeline)
         except Exception as e:
             self.logger.error(str(e))
-            abort(404)
+            abort(503)
         else:
             return_data = {
                 'catalog': game,
                 'result': list(game_data)
             }
             self.logger.info('get {} detail data'.format(game.encode('utf-8')))
+            return self.wrapper_response(return_data)
+
+
+@api_douyu_game.resource('/game/<string:game>/timeline')
+class Douyu_game_timeline(Douyu_Api):
+    """根据游戏名称，获取游戏人气随时间变化情况"""
+
+    def __init__(self, host='localhost', port=27017):
+        super(Douyu_game_timeline, self).__init__()
+        self.logger.info('{} inited'.format(__name__))
+
+    def get(self, game):
+        '''
+        根据游戏名称，获取游戏直播随时间人气变化情况
+        '''
+        pipeline = []
+        pipeline.append({'$match': {'catalog': '绝地求生'}})
+        pipeline.append(
+            {'$group': {'_id': '$uid', 'count': {'$sum': '$audience'}}})
+        pipeline.append({'$project': {'time': '$_id', 'count': 1, '_id': 0}})
+        pipeline.append({'$sort': {'time': 1}})
+        try:
+            timeline_data = self._col.aggregate(pipeline)
+        except Exception as e:
+            self.logger.error(str(e))
+            abort(503)
+        else:
+            return_data = {
+                'catalog': game,
+                'timeline': list(timeline_data)
+            }
+            self.logger.info(
+                'get {} timeline data'.format(game.encode('utf-8')))
             return self.wrapper_response(return_data)
