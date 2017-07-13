@@ -7,8 +7,6 @@
 from douyu_api_abc import Douyu_Api
 from flask import Blueprint
 from flask_restful import Api, abort
-from pymongo import DESCENDING, ASCENDING
-from datetime import datetime, timedelta
 
 bp_douyu_game = Blueprint('douyu_games_api', __name__,
                           url_prefix='/api/v1/douyu')
@@ -49,12 +47,47 @@ class Douyu_game_info(Douyu_Api):
         根据游戏名称获取游戏相关细节数据
         '''
         pipeline = []
-        pipeline.append({'$match': {'catalog': game}})
-        pipeline.append({'$sort': {'audience': 1}})
-        pipeline.append({'$group': {'_id': '$host', 'count': {'$sum': 1}, 'earliest': {'$min': '$date'}, 'latest': {
-                        '$max': '$date'}, 'date': {'$push': '$date'}, 'audience': {'$push': '$audience'}}})
-        pipeline.append({'$project': {'host': '$_id', 'count': 1,
-                                      'earliest': 1, 'latest': 1, 'date': 1, 'audience': 1, '_id': 0}})
+        pipeline.append(
+            {'$match': {'catalog': game}}
+        )
+        pipeline.append(
+            {'$sort': {'audience': 1}}
+        )
+        pipeline.append(
+            {
+                "$group": {
+                    "_id": "$host",
+                    "audience": {
+                        "$push": "$audience"
+                    },
+                    "count": {
+                        "$sum": 1
+                    },
+                    "date": {
+                        "$push": "$date"
+                    },
+                    "earliest": {
+                        "$min": "$date"
+                    },
+                    "latest": {
+                        "$max": "$date"
+                    }
+                }
+            }
+        )
+        pipeline.append(
+            {
+                "$project": {
+                    "_id": 0,
+                    "audience": 1,
+                    "count": 1,
+                    "date": 1,
+                    "earliest": 1,
+                    "host": "$_id",
+                    "latest": 1
+                }
+            }
+        )
         pipeline.append({'$limit': 20})
         try:
             game_data = self._col.aggregate(pipeline)
@@ -114,10 +147,31 @@ class Douyu_game_streamers(Douyu_Api):
     def get(self, game):
         pipeline = []
         pipeline.append({'$match': {'catalog': game}})
-        pipeline.append({'$group': {'_id': '$host', 'count': {'$sum': 1}, 'date': {
-                        '$push': '$date'}, 'audience': {'$push': '$audience'}}})
         pipeline.append(
-            {'$project': {'host': '$_id', 'count': 1, 'date': 1, 'audience': 1, '_id': 0}})
+            {
+                "$group": {
+                    "_id": "$host",
+                    "audience": {
+                        "$push": "$audience"
+                    },
+                    "count": {
+                        "$sum": 1
+                    },
+                    "date": {
+                        "$push": "$date"
+                    }
+                }
+            })
+        pipeline.append(
+            {
+                "$project": {
+                    "_id": 0,
+                    "audience": 1,
+                    "count": 1,
+                    "date": 1,
+                    "host": "$_id"
+                }
+            })
         pipeline.append({'$sort': {'count': -1}})
         pipeline.append({'$limit': 100})
         try:

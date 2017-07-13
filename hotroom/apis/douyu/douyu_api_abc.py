@@ -87,7 +87,7 @@ class Douyu_logger(object):
 
         # create formatter
         fmt = "%(asctime)-15s %(levelname)s %(filename)s\
-		 %(lineno)d %(process)d %(message)s"
+        %(lineno)d %(process)d %(message)s"
         datefmt = "%a %d %b %Y %H:%M:%S"
         formatter = logging.Formatter(fmt, datefmt)
 
