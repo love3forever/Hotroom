@@ -17,12 +17,9 @@ env.roledefs = {
 }
 
 
+@roles('al1')
 @task
 def pre_deploy():
-    with settings(warn_only=True):
-        result = local('python ./hotroom/tester.py', capture=True)
-    if result.failed and not confirm("Tests failed. Continue anyway?"):
-        abort("Aborting at user request.")
     local('git add -A && git commit')
     local('git push origin master && git push tx master')
 
@@ -35,7 +32,7 @@ def deploy_douyu():
             run("git clone hhttps://github.com/love3forever/Hotroom.git {}".format(code_dir))
     with cd(code_dir):
         run("git pull")
-        run("sudo pip install -r ./requirements.txt")
+        run("sudo pip install -r ./requirement.txt")
         with cd('./hotroom'):
             pids = run(
                 "ps -ef | grep celery | grep -v grep | awk '{print $2}'")
