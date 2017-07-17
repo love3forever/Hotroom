@@ -78,7 +78,7 @@ class Douyu_logger(object):
         # 配置logging
         logger_name = __name__
         self.logger = logging.getLogger(logger_name)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
 
         # create file handler
         log_path = "./douyu_api.log"

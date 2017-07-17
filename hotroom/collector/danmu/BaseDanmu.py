@@ -34,12 +34,12 @@ class BaseDanmu():
         # 配置logging
         logger_name = __name__
         self.logger = logging.getLogger(logger_name)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.ERROR)
 
         # create file handler
         log_path = "./Data_collector_log.log"
         fh = logging.FileHandler(log_path)
-        fh.setLevel(logging.DEBUG)
+        fh.setLevel(logging.ERROR)
 
         # create formatter
         fmt = "%(asctime)-15s %(levelname)s %(filename)s\
