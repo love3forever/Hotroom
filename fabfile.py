@@ -12,20 +12,31 @@ from fabric.contrib.console import confirm
 env.use_ssh_config = True
 env.hosts = ['al', 'al1']
 env.roledefs = {
-    'al1': ['al'],
-    'al2': ['al1'],
+    'douyu': ['al'],
+    'other': ['al1'],
 }
 
 
-@roles('al1')
+@runs_once
 @task
 def pre_deploy():
     local('git add -A && git commit')
     local('git push origin master && git push tx master')
 
 
-@roles('al1')
+@runs_once
+@roles('douyu')
 def deploy_douyu():
+    deploy_code('douyu_app')
+
+
+@runs_once
+@roles('other')
+def deploy_other():
+    deploy_code('other_app')
+
+
+def deploy_code(cmd):
     code_dir = '~/git/Hotroom'
     with settings(warn_only=True):
         if run("ls {}".format(code_dir)).failed:
@@ -39,15 +50,11 @@ def deploy_douyu():
             if pids:
                 pid_list = pids.split('\r\n')
                 for i in pid_list:
-                    run('kill -9 %s' % i)  # 杀掉运行服务进程
+                    with settings(warn_only=True):
+                        run('kill -9 %s' % i)
             run('pwd')
-            run("(nohup celery -A douyu_app worker -B --loglevel=error >& /dev/null < /dev/null &) && sleep 1")
+            run("(nohup celery -A {} worker -B --loglevel=error >& /dev/null < /dev/null &) && sleep 1".format(cmd))
             run('echo deployed')
-
-
-@roles('al2')
-def deploy_other():
-    run("uname -a")
 
 
 @task
