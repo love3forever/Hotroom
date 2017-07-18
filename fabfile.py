@@ -67,17 +67,28 @@ def deploy():
 
 def dump(db):
     stamp = datetime.now().strftime('%y_%m_%d_%H_%M')
+    cd_dir = '~/tars/dump/'
     dump_dir = '~/tars/dump/dump_{}'.format(stamp)
+    dump_tar = 'dump_{}.tar.gz'.format(stamp)
+    local_dir = '/Users/eclipse/Downloads/mongo34/dump/'
+    local_tar_dir = '/Users/eclipse/Downloads/mongo34/dump/dump_{}'.format(
+        stamp)
+    local_dump_dir = '/Users/eclipse/Downloads/mongo34/dump/dump_{}.tar.gz'.format(
+        stamp)
     with settings(warn_only=True):
         run('mkdir -p {}'.format(dump_dir))
         run('mongodump -d {} -c Roominfo -o {} --gzip'.format(db, dump_dir))
-        run('tar cvf {}.tar.gz {}'.format('dump_{}'.format(stamp), dump_dir))
-        get('{}.tar.gz'.format(dump_dir), '~/Downloads/mongo34/dump/')
-        local('mkdir -p ~/Downloads/mongo34/dump/dump_{}'.format(stamp))
-        local('tar xvf ~/Downloads/mongo34/dump/dump_{}.tar.gz -C \
-            ~/Downloads/mongo34/dump/dump_{}'.format(stamp, stamp))
-        local('~/Downloads/mongo34/bin/mongorestore \
-            --dir=~/Downloads/mongo34/dump/dump_{} --gzip'.format(stamp))
+    with cd(cd_dir):
+        run('ls')
+        run('tar -zcvf {} {}'.format(dump_tar, 'dump_{}'.format(stamp)))
+    with settings(warn_only=True):
+        get('~/tars/dump/{}'.format(dump_tar), local_dir)
+        run('echo current db:{}'.format(db))
+        run('mongo')
+        local('mkdir -p {}'.format(local_tar_dir))
+        local('tar -zxvf {} -C {}'.format(local_dump_dir, local_dir))
+        local('/Users/eclipse/Downloads/mongo34/bin/mongorestore --dir={} \
+            --gzip'.format(local_tar_dir))
 
 
 @task
