@@ -8,6 +8,8 @@
 from fabric.api import *
 from fabric.contrib.console import confirm
 
+from datetime import datetime
+
 
 env.use_ssh_config = True
 env.hosts = ['al', 'al1']
@@ -61,3 +63,43 @@ def deploy_code(cmd):
 def deploy():
     execute(deploy_douyu)
     execute(deploy_other)
+
+
+def dump(db):
+    stamp = datetime.now().strftime('%y_%m_%d_%H_%M')
+    dump_dir = '~/tars/dump/dump_{}'.format(stamp)
+    with settings(warn_only=True):
+        run('mkdir -p {}'.format(dump_dir))
+        run('mongodump -d {} -c Roominfo -o {} --gzip'.format(db, dump_dir))
+        run('tar cvf {}.tar.gz {}'.format('dump_{}'.format(stamp), dump_dir))
+        get('{}.tar.gz'.format(dump_dir), '~/Downloads/mongo34/dump/')
+        local('mkdir -p ~/Downloads/mongo34/dump/dump_{}'.format(stamp))
+        local('tar xvf ~/Downloads/mongo34/dump/dump_{}.tar.gz -C \
+            ~/Downloads/mongo34/dump/dump_{}'.format(stamp, stamp))
+        local('~/Downloads/mongo34/bin/mongorestore \
+            --dir=~/Downloads/mongo34/dump/dump_{} --gzip'.format(stamp))
+
+
+@task
+@runs_once
+@roles('douyu')
+def dump_douyu():
+    dump('Douyudata')
+
+
+@task
+@runs_once
+@roles('other')
+def dump_quanmin():
+    dump('Quanmin')
+
+
+@task
+@runs_once
+@roles('other')
+def dump_panda():
+    dump('Pandata')
+
+
+if __name__ == '__main__':
+    dump(1)

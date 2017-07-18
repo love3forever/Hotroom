@@ -33,10 +33,13 @@ class Douyu_streamers(Douyu_Api):
                 "$group": {
                     "_id": "$host",
                     "catalogs": {
-                        "$push": "$catalog"
+                        "$addToSet": "$catalog"
                     },
                     "count": {
                         "$sum": 1
+                    },
+                    "roomid": {
+                        "$first": "$roomid"
                     }
                 }
             })
@@ -46,6 +49,8 @@ class Douyu_streamers(Douyu_Api):
                     "_id": 0,
                     "count": 1,
                     "streamer": "$_id",
+                    'catalogs': "$catalogs",
+                    'roomid': '$roomid'
                 }
             })
         try:
