@@ -21,40 +21,15 @@ class Douyu_streamers(Douyu_Api):
 
     def __init__(self, host='localhost', port=27017):
         super(Douyu_streamers, self).__init__()
+        self._col = self._db['streamers_View']
         self.logger.info('{} inited'.format(__name__))
 
     def get(self):
         '''
         获取斗鱼全部主播基本信息
         '''
-        pipline = []
-        pipline.append(
-            {
-                "$group": {
-                    "_id": "$host",
-                    "catalogs": {
-                        "$addToSet": "$catalog"
-                    },
-                    "count": {
-                        "$sum": 1
-                    },
-                    "roomid": {
-                        "$first": "$roomid"
-                    }
-                }
-            })
-        pipline.append(
-            {
-                "$project": {
-                    "_id": 0,
-                    "count": 1,
-                    "streamer": "$_id",
-                    'catalogs': "$catalogs",
-                    'roomid': '$roomid'
-                }
-            })
         try:
-            streamer_data = self._col.aggregate(pipline)
+            streamer_data = self._col.find({}, {'_id': 0})
         except Exception as e:
             self.logger.error(str(e))
             return abort(503)
