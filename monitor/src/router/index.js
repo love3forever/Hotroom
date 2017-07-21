@@ -17,17 +17,17 @@ export default new Router({
     {
     	path:'/douyu/index',
     	name:'DouyuIndex',
-    	components:DouyuIndex
+    	component:DouyuIndex
     },
     {
     	path:'/panda/index',
     	name:'PandaIndex',
-    	components:PandaIndex
+    	component:PandaIndex
     },
     {
     	path:'/quanmin/index',
     	name:'QuanminIndex',
-    	components:QuanminIndex
+    	component:QuanminIndex
     }
   ]
 })

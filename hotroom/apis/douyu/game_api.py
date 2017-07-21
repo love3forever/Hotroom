@@ -8,6 +8,8 @@ from douyu_api_abc import Douyu_Api
 from flask import Blueprint
 from flask_restful import Api, abort
 
+from datetime import datetime, timedelta
+
 bp_douyu_game = Blueprint('douyu_games_api', __name__,
                           url_prefix='/api/v1/douyu')
 api_douyu_game = Api(bp_douyu_game)
@@ -116,9 +118,9 @@ class Douyu_game_timeline(Douyu_Api):
         根据游戏名称，获取游戏直播随时间人气变化情况
         '''
         pipeline = []
-        pipeline.append({'$match': {'catalog': '绝地求生'}})
+        pipeline.append({'$match': {'catalog': game}})
         pipeline.append(
-            {'$group': {'_id': '$uid', 'count': {'$sum': '$audience'}}})
+            {'$group': {'_id': '$uid', 'count': {'$avg': '$audience'}}})
         pipeline.append({'$project': {'time': '$_id', 'count': 1, '_id': 0}})
         pipeline.append({'$sort': {'time': 1}})
         try:
@@ -185,3 +187,57 @@ class Douyu_game_streamers(Douyu_Api):
                 'streamers': list(streamers_data)
             }
             return self.wrapper_response(return_data)
+
+
+@api_douyu_game.resource('/game/top5/<string:param>')
+class Top5_game_week(Douyu_Api):
+    """docstring for Top5_game_week"""
+
+    def __init__(self, host='localhost', port=27017):
+        super(Top5_game_week, self).__init__()
+        self.logger.info('{} inited'.format(__name__))
+
+    def get(self, param):
+        now = datetime.now()
+        begin = ''
+        if param == 'week':
+            begin = now - timedelta(days=7)
+        elif param == 'now':
+            begin = now - timedelta(hours=1)
+        else:
+            abort(404)
+        pipline = []
+        pipline.append({
+            '$match': {
+                'date': {'$gt': begin}
+            }
+        })
+        pipline.append({
+            '$group': {
+                '_id': '$catalog',
+                'heat': {'$avg': '$audience'}
+            }
+        })
+        pipline.append({
+            '$project': {
+                'catalog': '$_id',
+                'heat': {'$ceil': '$heat'},
+                '_id': 0
+            }
+        })
+        pipline.append({
+            '$sort': {
+                'heat': -1
+            }
+        })
+        pipline.append({
+            '$limit': 20
+        })
+        data = self._col.aggregate(pipline)
+        if data:
+            return self.wrapper_response({
+                'code': 200,
+                'lastweek': list(data)
+            })
+        else:
+            abort(404)

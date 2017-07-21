@@ -6,7 +6,6 @@
 # @Version : $Id$
 
 from fabric.api import *
-from fabric.contrib.console import confirm
 
 from datetime import datetime
 
