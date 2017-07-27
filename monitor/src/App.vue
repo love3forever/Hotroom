@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" class="container-fluid">
     <router-view></router-view>
   </div>
 </template>
@@ -17,6 +17,7 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-/*  background-color: #1C1C1C;*/
+  height: 100%;
+  width: 100%;
 }
 </style>

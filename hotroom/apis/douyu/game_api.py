@@ -108,6 +108,7 @@ class Douyu_game_info(Douyu_Api):
 @api_douyu_game.resource('/game/<string:game>/timeline')
 class Douyu_game_timeline(Douyu_Api):
     """根据游戏名称，获取游戏人气随时间变化情况"""
+    '''使用mongodb操作符来进行聚合，避免使用uid'''
 
     def __init__(self, host='localhost', port=27017):
         super(Douyu_game_timeline, self).__init__()
@@ -121,7 +122,8 @@ class Douyu_game_timeline(Douyu_Api):
         pipeline.append({'$match': {'catalog': game}})
         pipeline.append(
             {'$group': {'_id': '$uid', 'count': {'$avg': '$audience'}}})
-        pipeline.append({'$project': {'time': '$_id', 'count': 1, '_id': 0}})
+        pipeline.append(
+            {'$project': {'time': '$_id', 'count': {'$ceil': '$count'}, '_id': 0}})
         pipeline.append({'$sort': {'time': 1}})
         try:
             timeline_data = self._col.aggregate(pipeline)
