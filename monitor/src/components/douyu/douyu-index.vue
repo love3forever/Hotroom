@@ -33,7 +33,6 @@ export default {
     });
 
     var option = {
-        
     };
 
     douyu_chart.setOption(option);
