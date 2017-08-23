@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="container-fluid">
+  <div id="app">
     <router-view></router-view>
   </div>
 </template>
@@ -19,5 +19,9 @@ export default {
   color: #2c3e50;
   height: 100%;
   width: 100%;
+}
+
+.el-card__body {
+  padding: 0px;
 }
 </style>
