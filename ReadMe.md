@@ -10,5 +10,5 @@
 ## rest api
 在完成直播网站页面数据和弹幕数据的抓取入库之后，本次打算在后端直接建立rest api的方式来提供数据。
 
-## 前端框架
-准备使用vue来完成前端页面的构建，通过ajax或者websocket的方式与后端通讯。
+## 前端展示
+之前打算使用vue，不过最近正好在学习react，所以新建了一个项目[hotroom-web](https://github.com/love3forever/hotroom-web)用来练习。
