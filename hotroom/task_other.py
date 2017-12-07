@@ -6,8 +6,8 @@
 # @Version : $Id$
 
 from other_app import app
-from collector.danmu.CPanda import Panda
-from collector.danmu.CQuanmin import Quanmin
+from collector.basicinfo.CPanda import Panda
+from collector.basicinfo.CQuanmin import Quanmin
 
 
 @app.task

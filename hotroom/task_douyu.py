@@ -5,7 +5,7 @@
 # @Link    : https://eclipsesv.com
 # @Version : $Id$
 from douyu_app import app
-from collector.danmu.CDouyu import Douyu
+from collector.basicinfo.CDouyu import Douyu
 
 
 @app.task

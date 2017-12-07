@@ -6,7 +6,7 @@
 # @Version : $Id$
 
 from unittest import TestCase, main
-from collector.danmu import CDouyu, CPanda, CQuanmin
+from collector.basicinfo import CDouyu, CPanda, CQuanmin
 
 
 class TestCollector(TestCase):
