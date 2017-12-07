@@ -9,7 +9,7 @@ from unittest import TestCase, main
 from collector.danmu import CDouyu, CPanda, CQuanmin
 
 
-class Test_Collector(TestCase):
+class TestCollector(TestCase):
     """docstring for Test_Douyu"""
 
     def setUp(self):
@@ -20,15 +20,15 @@ class Test_Collector(TestCase):
 
     def test_douyu(self):
         douyu = CDouyu.Douyu(mport=27018)
-        assert 0 == douyu.getRoomInfos()
+        assert 0 == douyu.get_room_infos()
 
     def test_quanmin(self):
         quanmin = CQuanmin.Quanmin(mport=27018)
-        assert 0 == quanmin.getRoomInfos()
+        assert 0 == quanmin.get_room_infos()
 
     def test_panda(self):
         panda = CPanda.Panda(mport=27018)
-        assert 0 == panda.getRoomInfos()
+        assert 0 == panda.get_room_infos()
 
 
 if __name__ == '__main__':

@@ -7,7 +7,6 @@
 import argparse
 
 from pymongo import MongoClient
-from datetime import datetime
 
 
 def rectify(db_name):

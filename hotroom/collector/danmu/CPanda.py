@@ -22,7 +22,7 @@ class Panda(BaseDanmu):
         self._cataCol = self._mongocli['Pandata']['Catalog']
         self._roomCol = self._mongocli['Pandata']['Roominfo']
 
-    def getCatalogs(self):
+    def get_catalogs(self):
         with self.session as s:
             cate_page = s.get(Panda.PANDA_CATALOG, headers=self.headers)
         if cate_page:
@@ -54,12 +54,13 @@ class Panda(BaseDanmu):
             else:
                 print("no data received")
 
-    def getCatalogURLs(self):
-        allCatalogs = self._cataCol.find()
-        catalogs = [item['catelog'] for item in allCatalogs]
+    def get_catalog_urls(self):
+        all_catalogs = self._cataCol.find()
+        catalogs = [item['catelog'] for item in all_catalogs]
         urls = list()
         for href in catalogs:
             catalog = href
+            spider = dict()
             with self.session as s:
                 try:
                     spider = s.get(Panda.PANDA_SPIDER.format(
@@ -74,15 +75,16 @@ class Panda(BaseDanmu):
                 urls.append(Panda.PANDA_ROOM.format(num, catalog))
         return urls
 
-    def getRoomInfos(self):
-        self.getCatalogs()
-        catalogURLs = self.getCatalogURLs()
-        map(self.savePandaRooms, catalogURLs)
+    def get_room_infos(self):
+        self.get_catalogs()
+        catalog_urls = self.get_catalog_urls()
+        map(self.save_panda_rooms, catalog_urls)
         return 0
 
-    def savePandaRooms(self, url):
+    def save_panda_rooms(self, url):
         if url:
             self.logger.info('searching data for {}'.format(url))
+            room_info = None
             with self.session as s:
                 try:
                     room_info = s.get(url, headers=self.headers,

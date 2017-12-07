@@ -9,6 +9,6 @@ from collector.danmu.CDouyu import Douyu
 
 
 @app.task
-def SAVE_DOUYU_DATA():
+def save_douyu_data():
     douyu = Douyu()
-    douyu.getRoomInfos()
+    douyu.get_room_infos()

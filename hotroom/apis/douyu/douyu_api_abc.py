@@ -11,19 +11,19 @@ from flask_restful import Resource
 from flask import jsonify, make_response
 
 
-class Douyu_Api(Resource):
+class DouyuApi(Resource):
     """douyu相关api基类，初始化数据库连接，配置logging，提供response包装器"""
 
     def __init__(self, host='localhost', port=27017):
-        super(Douyu_Api, self).__init__()
+        super(DouyuApi, self).__init__()
         # 创建logger
-        self.logger = Douyu_logger().logger
+        self.logger = DouyuLogger().logger
 
         # 创建数据库连接
         self.host = host
         self.port = port
         try:
-            self._mongo = Mongo_instance(self.host, self.port).mongo_instance
+            self._mongo = MongoInstance(self.host, self.port).mongo_instance
             self.logger.info('get mongo instance')
         except Exception as e:
             self.logger.error(str(e))
@@ -47,21 +47,23 @@ class Douyu_Api(Resource):
 
 def singleton(cls):
     instances = {}
+
     def _singleton(*args, **kw):
         if cls not in instances:
             instances[cls] = cls(*args, **kw)
         return instances[cls]
+
     return _singleton
 
 
 @singleton
-class Mongo_instance(object):
-    '''
+class MongoInstance(object):
+    """
     使用单例模式，避免重复创建数据库连接
-    '''
+    """
 
     def __init__(self, host, port):
-        logger = Douyu_logger().logger
+        logger = DouyuLogger().logger
         try:
             self.mongo_instance = MongoClient(host, port)
         except Exception as e:
@@ -71,7 +73,7 @@ class Mongo_instance(object):
 
 
 @singleton
-class Douyu_logger(object):
+class DouyuLogger(object):
     """docstring for Douyu_logger"""
 
     def __init__(self):

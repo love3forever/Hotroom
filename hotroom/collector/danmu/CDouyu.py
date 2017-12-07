@@ -22,7 +22,7 @@ class Douyu(BaseDanmu):
         self.DOUYU_CATALOG = 'https://www.douyu.com/directory'
         self.logger.info('Douyu Collector Created')
 
-    def getCatalogs(self):
+    def get_catalogs(self):
         with self.session as s:
             origin_content = s.get(
                 self.DOUYU_CATALOG, headers=self.headers, stream=True, timeout=5)
@@ -32,15 +32,15 @@ class Douyu(BaseDanmu):
         box = soup.select("#live-list-contentbox > li")
         self._cataCol.drop()
         if box:
-            catalogs = Douyu.parseCatalogContent(box)
+            catalogs = Douyu.parse_catalog_content(box)
             self._cataCol.insert_many(catalogs)
             self.logger.info('Douyu Catalog Inserted')
 
     @staticmethod
-    def parseCatalogContent(box):
-        '''
+    def parse_catalog_content(box):
+        """
         将parseCatalogContent的返回值从list改为生成器，减少内存开销
-        '''
+        """
         for catalog in box:
             try:
                 a = catalog.select("a")
@@ -56,9 +56,8 @@ class Douyu(BaseDanmu):
                 yield None
 
     @staticmethod
-    def convertAudience(audience):
+    def convert_audience(audience):
         if audience:
-            value = 0
             if u"万" in audience:
                 number = list(audience)
                 number.pop()
@@ -70,18 +69,18 @@ class Douyu(BaseDanmu):
                 value = int(audience)
             return value
 
-    def getRoomInfos(self):
-        self.getCatalogs()
-        catalogURLs = self.getCatalogURLs()
-        if not catalogURLs:
+    def get_room_infos(self):
+        self.get_catalogs()
+        catalog_urls = self.get_catalog_urls()
+        if not catalog_urls:
             return
-        # map(self.saveDouyuRoomInfo, catalogURLs)
-        for url in catalogURLs:
-            self.saveDouyuRoomInfo(url)
+        # map(self.saveDouyuRoomInfo, catalog_urls)
+        for url in catalog_urls:
+            self.save_douyu_room_info(url)
         self.logger.info('Douyu Data Inserted')
         return 0
 
-    def saveDouyuRoomInfo(self, catalog_url):
+    def save_douyu_room_info(self, catalog_url):
         if catalog_url:
             flag = list()
             result = list()
@@ -91,6 +90,7 @@ class Douyu(BaseDanmu):
                     break
                 room_url = catalog_url + "?page={}&isAjax=1".format(x)
                 self.logger.info("current page:{}".format(room_url))
+                room_page = None
                 with self.session as s:
                     try:
                         room_page = s.get(
@@ -121,7 +121,7 @@ class Douyu(BaseDanmu):
                     audience = item.find_all(attrs={"class": "dy-num fr"})[0]
                     room_data["catalog"] = catalog.string
                     room_data["host"] = host.string
-                    room_data["audience"] = Douyu.convertAudience(
+                    room_data["audience"] = Douyu.convert_audience(
                         audience.string)
                     room_data["url"] = item["data-rid"]
                     room_data["date"] = datetime.now()
@@ -135,10 +135,10 @@ class Douyu(BaseDanmu):
                 self.logger.info('Inserting {} douyu data'.format(len(result)))
                 self._roomCol.insert_many(result)
 
-    def getCatalogURLs(self):
+    def get_catalog_urls(self):
         if self._cataCol:
-            catalogCursor = self._cataCol.find()
-            if catalogCursor.count() != 0:
-                return [item["href"] for item in catalogCursor]
+            catalog_cursor = self._cataCol.find()
+            if catalog_cursor.count() != 0:
+                return [item["href"] for item in catalog_cursor]
             else:
                 return None

@@ -8,8 +8,6 @@
 # celery -A celeryApp worker -B --loglevel=info
 
 from celery import Celery
-import celery_douyu_config
-
 
 app = Celery('douyuapp', include=['task_douyu'])
 app.config_from_object('celery_douyu_config')

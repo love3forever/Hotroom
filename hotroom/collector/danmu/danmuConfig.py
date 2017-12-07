@@ -18,7 +18,6 @@ headers = {
 
 def convert_audience(audience):
     if audience:
-        value = 0
         if u"万" in audience:
             number = list(audience)
             number.pop()

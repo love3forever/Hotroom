@@ -6,15 +6,16 @@
 # @Version : $Id$
 
 import logging
-from pymongo import MongoClient
-from pymongo.errors import PyMongoError
-from danmuConfig import headers
-from bs4 import BeautifulSoup
-from requests import Session
 from abc import ABCMeta, abstractmethod
 
+from bs4 import BeautifulSoup
+from pymongo import MongoClient
+from requests import Session
 
-class BaseDanmu():
+from danmuConfig import headers
+
+
+class BaseDanmu:
     """docstring for BaseDanmu"""
     __metaclass__ = ABCMeta
 
@@ -52,13 +53,13 @@ class BaseDanmu():
         self.logger.addHandler(fh)
 
     @abstractmethod
-    def getCatalogs(self):
+    def get_catalogs(self):
         pass
 
     @abstractmethod
-    def getRoomInfos(self):
+    def get_room_infos(self):
         pass
 
     @abstractmethod
-    def getCatalogURLs(self):
+    def get_catalog_urls(self):
         pass

@@ -6,8 +6,6 @@
 # @Version : $Id$
 
 from celery import Celery
-import celery_other_config
-
 
 app = Celery('otherapp', include=['task_other'])
 app.config_from_object('celery_other_config')

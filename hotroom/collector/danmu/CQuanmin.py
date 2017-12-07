@@ -22,7 +22,7 @@ class Quanmin(BaseDanmu):
         self._cataCol = self._db['Catalog']
         self._roomCol = self._db['Roominfo']
 
-    def getCatalogs(self):
+    def get_catalogs(self):
         with self.session as s:
             qm_catalogs = s.get(Quanmin.QUANMIN_CATALOG, headers=self.headers)
         if qm_catalogs:
@@ -37,15 +37,16 @@ class Quanmin(BaseDanmu):
             self._cataCol.drop()
             self._cataCol.insert_many(result)
 
-    def getRoomInfos(self):
-        self.getCatalogs()
-        catalogURLs = self.getCatalogURLs()
-        if catalogURLs:
-            map(self.saveRoomInfo, catalogURLs)
+    def get_room_infos(self):
+        self.get_catalogs()
+        catalog_urls = self.get_catalog_urls()
+        if catalog_urls:
+            map(self.save_room_info, catalog_urls)
             return 0
 
-    def saveRoomInfo(self, url):
+    def save_room_info(self, url):
         self.logger.info('saving data of page:{}'.format(url))
+        room_data = None
         with self.session as s:
             try:
                 room_data = s.get(url, headers=self.headers,
@@ -75,7 +76,7 @@ class Quanmin(BaseDanmu):
                     'Inserting {} quanmin data'.format(len(result)))
                 self._roomCol.insert_many(result)
 
-    def getCatalogURLs(self):
+    def get_catalog_urls(self):
         catalogs = self._cataCol.find()
         room_urls = list()
         for catalog in catalogs:

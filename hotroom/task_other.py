@@ -11,12 +11,12 @@ from collector.danmu.CQuanmin import Quanmin
 
 
 @app.task
-def SAVE_PANDA_DATA():
+def save_panda_data():
     panda = Panda()
-    panda.getRoomInfos()
+    panda.get_room_infos()
 
 
 @app.task
-def SAVE_QUANMIN_DATA():
+def save_quanmin_data():
     quanmin = Quanmin()
-    quanmin.getRoomInfos()
+    quanmin.get_room_infos()
