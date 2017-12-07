@@ -7,6 +7,7 @@ import socket
 import re
 from time import time, sleep
 from datetime import datetime
+from threading import Thread
 
 
 class DouyuDM:
@@ -53,6 +54,14 @@ class DouyuDM:
             self.is_connected = True
             print('connected to danmu server')
 
+    def print_danmu(self):
+        msgs = self.send_and_get_msg()
+        for msg in msgs:
+            self.convert_danmu(msg)
+
+    def terminate(self):
+        self.is_terminated = True
+
     def send_and_get_msg(self):
         if self.is_connected:
             # 发送登陆信息并加入指定弹幕频道
@@ -93,8 +102,7 @@ class DouyuDM:
             if flag in danmu_msg:
                 return self.convert_function_map.get(flag)(danmu_msg)
 
-    @staticmethod
-    def convert_chatmsg(chat_msg):
+    def convert_chatmsg(self, chat_msg):
         # 转换普通聊天信息
         chat_dict = dict()
         user_name = re.search("\/nn@=(.+?)\/", chat_msg)
@@ -109,7 +117,7 @@ class DouyuDM:
         chat_date = datetime.now()
         chat_dict.setdefault('date', chat_date)
         for k, v in chat_dict.items():
-            print('{}:{}'.format(k, v))
+            print('{} >>> {}:{}'.format(self.room_id, k, v))
 
     @staticmethod
     def convert_onlinegift(onlinegift):
@@ -150,8 +158,11 @@ class DouyuDM:
 
 
 if __name__ == '__main__':
-    danmu = DouyuDM('71017')
-    danmu.connect_to_server()
-    msgs = danmu.send_and_get_msg()
-    for msg in msgs:
-        danmu.convert_danmu(msg)
+    rooms = ['67373', '71017']
+    danmu_client = []
+    for room in rooms:
+        danmu = DouyuDM(room)
+        danmu_client.append(danmu)
+        danmu.connect_to_server()
+        danmu_thread = Thread(target=danmu.print_danmu)
+        danmu_thread.start()
