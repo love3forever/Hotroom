@@ -3,8 +3,10 @@
 # @Date    : 2017/12/7
 # @Author  : wangmengcn
 # @Email   : eclipse_sv@163.com
-from time import time, sleep
 import socket
+import re
+from time import time, sleep
+from datetime import datetime
 
 
 class DouyuDM:
@@ -19,6 +21,19 @@ class DouyuDM:
         self.JION_GROUP = "type@=joingroup/rid@={}/gid@=-9999/".format(room_id)
         self.KEEP_ALIVE = "type@=keeplive/tick@={}/"
         self.is_terminated = False
+        self.msg_types = ['@=chatmsg', '@=onlinegift', '@=dgb',
+                          '@=uenter', '@=bc_buy_deserve', '@=ssd',
+                          '@=spbc', '@=ggbb']
+        self.convert_function_map = {
+            '@=chatmsg': self.convert_chatmsg,
+            '@=onlinegift': self.convert_onlinegift,
+            '@=dgb': self.convert_dgb,
+            '@=uenter': self.convert_uenter,
+            '@=bc_buy_deserve': self.convert_bc_buy_deserve,
+            '@=ssd': self.convert_ssd,
+            '@=spbc': self.convert_spbc,
+            '@=ggbb': self.convert_ggbb
+        }
 
     @staticmethod
     def transform_msg(content):
@@ -60,8 +75,7 @@ class DouyuDM:
                 except socket.error as e:
                     print(str(e))
                 else:
-                    danmu_str = repr(danmu_msg)
-                    yield danmu_str
+                    yield danmu_msg
 
     def keep_connect_alive(self):
         while self.is_connected:
@@ -70,14 +84,74 @@ class DouyuDM:
                 try:
                     self.socket.sendall(keep_alive_info)
                 except socket.error as e:
-                    print(str(e))
+                    print('error in keepalive:' + str(e))
             print('*' * 10 + 'keepalive' + '*' * 10)
             sleep(1)
 
+    def convert_danmu(self, danmu_msg):
+        for flag in self.msg_types:
+            if flag in danmu_msg:
+                return self.convert_function_map.get(flag)(danmu_msg)
+
+    @staticmethod
+    def convert_chatmsg(chat_msg):
+        # 转换普通聊天信息
+        chat_dict = dict()
+        user_name = re.search("\/nn@=(.+?)\/", chat_msg)
+        if user_name:
+            chat_dict.setdefault('username', user_name.group(1))
+        chat_content = re.search("\/txt@=(.+?)\/", chat_msg)
+        if chat_content:
+            chat_dict.setdefault('chatcontent', chat_content.group(1))
+        user_level = re.search("\/level@=(.+?)\/", chat_msg)
+        if user_level:
+            chat_dict.setdefault('userlevel', user_level.group(1))
+        chat_date = datetime.now()
+        chat_dict.setdefault('date', chat_date)
+        for k, v in chat_dict.items():
+            print('{}:{}'.format(k, v))
+
+    @staticmethod
+    def convert_onlinegift(onlinegift):
+        # 转换在线礼物信息
+        onlinegift_dict = dict()
+        username = re.search("\/nn@=(.+?)\/", onlinegift)
+        if username:
+            onlinegift_dict.setdefault('username', username.group(1))
+        sil = re.search("\/sil@=(.+?)\/", onlinegift)
+        if sil:
+            onlinegift_dict.setdefault('sil', sil.group(1))
+        now = datetime.now()
+        print('{} >>user:{} 获得鱼丸{}个'.format(now, username, sil))
+
+    def convert_dgb(self, dgb):
+        # 转换赠送礼物信息
+        pass
+
+    def convert_uenter(self, uenter):
+        # 转换用户进入直播间信息
+        pass
+
+    def convert_bc_buy_deserve(self, bc_buy_deserve):
+        # 转换酬勤赠送信息
+        pass
+
+    def convert_ssd(self, ssd):
+        # 转换超级弹幕信息
+        pass
+
+    def convert_spbc(self, spbc):
+        # 转换房间内赠送礼物信息
+        pass
+
+    def convert_ggbb(self, ggbb):
+        # 转换房间用户抢红包信息
+        pass
+
 
 if __name__ == '__main__':
-    danmu = DouyuDM('85981')
+    danmu = DouyuDM('71017')
     danmu.connect_to_server()
     msgs = danmu.send_and_get_msg()
     for msg in msgs:
-        print(msg)
+        danmu.convert_danmu(msg)
