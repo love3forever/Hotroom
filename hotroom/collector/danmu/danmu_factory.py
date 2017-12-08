@@ -8,6 +8,8 @@ import re
 from time import time, sleep
 from datetime import datetime
 from threading import Thread
+from json import dumps
+from . import r
 
 
 class DouyuDM:
@@ -59,6 +61,14 @@ class DouyuDM:
         for msg in msgs:
             self.convert_danmu(msg)
 
+    def publish_danmu(self):
+        danmu_channel = 'channel:{}'.format(self.room_id)
+        msgs = self.send_and_get_msg()
+        for msg in msgs:
+            danmu_info = dumps(self.convert_danmu(msg))
+            if danmu_info:
+                r.publish(danmu_channel, danmu_info)
+
     def terminate(self):
         self.is_terminated = True
 
@@ -69,18 +79,19 @@ class DouyuDM:
             self.socket.sendall(self.transform_msg(self.JION_GROUP))
             keep_aliver = self.keep_connect_alive()
             next(keep_aliver)
-            keep_alive_flag = 0
+            loop_begin = datetime.now()
             while not self.is_terminated:
                 now = time()
-                sleep(1)
+                sleep(0.1)
                 # 更新keepalive
-                if keep_alive_flag % 30 == 0:
+                running_time = datetime.now()
+                if (running_time - loop_begin).seconds > 40:
                     keep_alive_info = self.KEEP_ALIVE.format(now)
                     keep_alive_info = self.transform_msg(keep_alive_info)
                     self.is_terminated = keep_aliver.send(keep_alive_info)
-                keep_alive_flag += 1
+                    loop_begin = datetime.now()
                 try:
-                    danmu_msg = self.socket.recv(4000)
+                    danmu_msg = self.socket.recv(1000)
                 except socket.error as e:
                     print(str(e))
                 else:
@@ -115,12 +126,12 @@ class DouyuDM:
         if user_level:
             chat_dict.setdefault('userlevel', user_level.group(1))
         chat_date = datetime.now()
-        chat_dict.setdefault('date', chat_date)
+        chat_dict.setdefault('date', chat_date.isoformat(' '))
         for k, v in chat_dict.items():
             print('{} >>> {}:{}'.format(self.room_id, k, v))
+        return chat_dict
 
-    @staticmethod
-    def convert_onlinegift(onlinegift):
+    def convert_onlinegift(self, onlinegift):
         # 转换在线礼物信息
         onlinegift_dict = dict()
         username = re.search("\/nn@=(.+?)\/", onlinegift)
@@ -129,8 +140,8 @@ class DouyuDM:
         sil = re.search("\/sil@=(.+?)\/", onlinegift)
         if sil:
             onlinegift_dict.setdefault('sil', sil.group(1))
-        now = datetime.now()
-        print('{} >>user:{} 获得鱼丸{}个'.format(now, username, sil))
+        print('{} >>user:{} 获得鱼丸{}个'.format(self.room_id, username, sil))
+        return onlinegift_dict
 
     def convert_dgb(self, dgb):
         # 转换赠送礼物信息
@@ -138,23 +149,28 @@ class DouyuDM:
 
     def convert_uenter(self, uenter):
         # 转换用户进入直播间信息
-        pass
+        uenter_dict = dict()
+        username = re.search("\/nn@=(.+?)\/", uenter)
+        if username:
+            uenter_dict.setdefault('username', username.group(1))
+        print('{} >>>欢迎:{} 进入直播间'.format(self.room_id, uenter_dict.setdefault('username', None)))
+        return uenter_dict
 
     def convert_bc_buy_deserve(self, bc_buy_deserve):
         # 转换酬勤赠送信息
-        pass
+        return None
 
     def convert_ssd(self, ssd):
         # 转换超级弹幕信息
-        pass
+        return None
 
     def convert_spbc(self, spbc):
         # 转换房间内赠送礼物信息
-        pass
+        return None
 
     def convert_ggbb(self, ggbb):
         # 转换房间用户抢红包信息
-        pass
+        return None
 
 
 if __name__ == '__main__':

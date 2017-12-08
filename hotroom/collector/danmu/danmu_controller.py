@@ -5,13 +5,8 @@
 # @Email   : eclipse_sv@163.com
 from time import sleep
 from threading import Thread
-
-import redis
-
-from danmu_factory import DouyuDM
-
-rooms = ['67373', '71017', '85981']
-r = redis.StrictRedis()
+from .danmu_factory import DouyuDM
+from . import r
 
 
 def create_danmu_pool():
@@ -29,7 +24,7 @@ def create_danmu_pool():
                 print('新建room:{}'.format(create_room_id))
                 danmu = DouyuDM(create_room_id)
                 danmu.connect_to_server()
-                danmu_thread = Thread(target=danmu.print_danmu)
+                danmu_thread = Thread(target=danmu.publish_danmu)
                 danmu_thread.start()
                 danmu_pool.setdefault(create_room_id, danmu)
             else:
