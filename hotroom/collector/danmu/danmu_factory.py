@@ -145,7 +145,20 @@ class DouyuDM:
 
     def convert_dgb(self, dgb):
         # 转换赠送礼物信息
-        pass
+        dgb_dict = dict()
+        username = re.search("\/nn@=(.+?)\/", dgb)
+        if username:
+            dgb_dict.setdefault('username', username.group(1))
+        hits = re.search("\/hits@=(.+?)\/", dgb)
+        if hits:
+            dgb_dict.setdefault('hits', hits.group(1))
+        gift_type = re.search("\/gs@=(.+?)\/", dgb)
+        if gift_type:
+            dgb_dict.setdefault('gift_type', gift_type.group(1))
+        print('{} >>> {}送出{}{}连击'.format(self.room_id, dgb_dict.get('username', None),
+                                         dgb_dict.get('gift_type', None),
+                                         dgb_dict.get('hits', None)))
+        return dgb_dict
 
     def convert_uenter(self, uenter):
         # 转换用户进入直播间信息
@@ -187,7 +200,25 @@ class DouyuDM:
 
     def convert_ggbb(self, ggbb):
         # 转换房间用户抢红包信息
-        return None
+        ggbb_dict = dict()
+        username = re.search("\/dnk@=(.+?)\/", ggbb)
+        if username:
+            ggbb_dict.setdefault('username', username.group(1))
+        sender_name = re.search("\/snk@=(.+?)\/", ggbb)
+        if sender_name:
+            ggbb_dict.setdefault('sender_name', sender_name.group(1))
+        gift_num = re.search("\/sl@=(.+?)\/", ggbb)
+        if gift_num:
+            ggbb_dict.setdefault('gift_num', gift_num.group(1))
+        gift_type = re.search("\/rpt@=(.+?)\/", ggbb)
+        if gift_type:
+            ggbb_dict.setdefault('gift_type', gift_type.group(1))
+
+        print('{} >>> {} 获得了来自{}的{}个{}'.format(self.room_id, ggbb_dict.get('username', None),
+                                               ggbb_dict.get('sender_name', None),
+                                               ggbb_dict.get('gift_num', None),
+                                               ggbb_dict.get('gift_type', None)))
+        return ggbb_dict
 
 
 if __name__ == '__main__':
