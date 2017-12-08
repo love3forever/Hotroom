@@ -166,7 +166,24 @@ class DouyuDM:
 
     def convert_spbc(self, spbc):
         # 转换房间内赠送礼物信息
-        return None
+        spbc_dict = dict()
+        sender_name = re.search("\/sn@=(.+?)\/", spbc)
+        if sender_name:
+            spbc_dict.setdefault('sender_name', sender_name.group(1))
+        reciver_name = re.search("\/dn@=(.+?)\/", spbc)
+        if reciver_name:
+            spbc_dict.setdefault('reciver_name', reciver_name.group(1))
+        gift_num = re.search("\/gc@=(.+?)\/", spbc)
+        if gift_num:
+            spbc_dict.setdefault('gift_num', gift_num.group(1))
+        gift_name = re.search("\/gn@=(.+?)\/", spbc)
+        if gift_name:
+            spbc_dict.setdefault('gift_name', gift_name.group(1))
+        print('{} >>> {}赠送给{} {}个{}'.format(self.room_id, spbc_dict.get('sender_name', None),
+                                            spbc_dict.get('reciver_name', None),
+                                            spbc_dict.get('gift_num', None),
+                                            spbc_dict.get('gift_name', None)))
+        return spbc_dict
 
     def convert_ggbb(self, ggbb):
         # 转换房间用户抢红包信息
